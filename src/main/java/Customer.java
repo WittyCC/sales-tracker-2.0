@@ -79,4 +79,25 @@ public class Customer {
         .executeAndFetch(Shoe.class);
     }
   }
+
+    public void update(String name, String address, String email) {
+      try(Connection con = DB.sql2o.open()) {
+        String sql = "UPDATE customers SET name = :name, address = :address, email = :email WHERE id = :id";
+        con.createQuery(sql)
+          .addParameter("name", name)
+          .addParameter("address", address)
+          .addParameter("email", email)
+          .addParameter("id", id)
+          .executeUpdate();
+      }
+    }
+
+  public void delete() {
+    try(Connection con = DB.sql2o.open()) {
+    String sql = "DELETE FROM customers WHERE id = :id;";
+    con.createQuery(sql)
+      .addParameter("id", id)
+      .executeUpdate();
+    }
+  }
 }

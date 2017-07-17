@@ -79,4 +79,34 @@ public class Shoe {
     }
   }
 
+  public static Shoe findByName(String name) {
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT * FROM shoes where name=:name";
+      Shoe shoe = con.createQuery(sql)
+        .addParameter("name", name)
+        .executeAndFetchFirst(Shoe.class);
+        return shoe;
+    }
+  }
+
+  public void update(String name, int price, int size) {
+   try(Connection con = DB.sql2o.open()) {
+     String sql = "UPDATE shoes SET name = :name, price = :price, size = :size WHERE id = :id";
+     con.createQuery(sql)
+       .addParameter("name", name)
+       .addParameter("price", price)
+       .addParameter("size", size)
+       .addParameter("id", id)
+       .executeUpdate();
+   }
+  }
+
+public void delete() {
+   try(Connection con = DB.sql2o.open()) {
+   String sql = "DELETE FROM shoes WHERE id = :id;";
+   con.createQuery(sql)
+     .addParameter("id", id)
+     .executeUpdate();
+   }
+  }
 }

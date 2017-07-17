@@ -84,4 +84,23 @@ public class CustomerTest {
     Shoe[] shoes = new Shoe[] { firstShoe, secondShoe };
     assertTrue(testCustomer.getShoes().containsAll(Arrays.asList(shoes)));
   }
+
+  @Test
+  public void update_updatesCustomerDetails_true() {
+    Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    testCustomer.save();
+    testCustomer.update("Jane Doe", "102 W Olympic Pl, Seattle", "janedoe@janedoe.com");
+    assertEquals("Jane Doe", Customer.find(testCustomer.getId()).getName());
+    assertEquals("102 W Olympic Pl, Seattle", Customer.find(testCustomer.getId()).getAddress());
+    assertEquals("janedoe@janedoe.com", Customer.find(testCustomer.getId()).getEmail());
+  }
+
+  @Test
+  public void delete_deletesCustomer_true() {
+    Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    testCustomer.save();
+    int testCustomerId = testCustomer.getId();
+    testCustomer.delete();
+    assertEquals(null, Customer.find(testCustomerId));
+  }
 }

@@ -74,6 +74,15 @@ public class ShoeTest {
   }
 
   @Test
+  public void findByName_returnsShoesWithSameName_secondShoe() {
+    Shoe firstShoe = new Shoe("Sneakers", 1, 50, 6);
+    firstShoe.save();
+    Shoe secondShoe = new Shoe("Sandals", 1, 30, 8);
+    secondShoe.save();
+    assertEquals(Shoe.findByName(secondShoe.getName()), secondShoe);
+  }
+
+  @Test
   public void save_savesCustomerIdIntoDB_true() {
     Customer testCustomer = new Customer("Jane Doe", "101 W Olympic Pl, Seattle", "janedoe@janedoe.com");
     testCustomer.save();
@@ -83,5 +92,22 @@ public class ShoeTest {
     assertEquals(savedShoe.getCustomerId(), testCustomer.getId());
   }
 
+  @Test
+ public void update_updatesShoeDetails_true() {
+   Shoe testShoe = new Shoe("Sneakers", 1, 50, 6);
+   testShoe.save();
+   testShoe.update("Sandals", 30, 8);
+   assertEquals("Sandals", Shoe.find(testShoe.getId()).getName());
+   assertEquals(30, Shoe.find(testShoe.getId()).getPrice());
+   assertEquals(8, Shoe.find(testShoe.getId()).getSize());
+ }
 
+ @Test
+ public void delete_deletesShoe_true() {
+   Shoe testShoe = new Shoe("Sneakers", 1, 50, 6);
+   testShoe.save();
+   int testShoeId = testShoe.getId();
+   testShoe.delete();
+   assertEquals(null, Shoe.find(testShoeId));
+ }
 }
