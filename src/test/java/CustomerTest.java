@@ -1,7 +1,12 @@
 import org.junit.*;
 import static org.junit.Assert.*;
+import org.sql2o.*;
+import java.util.Arrays;
 
 public class CustomerTest {
+
+  @Rule
+  public DatabaseRule database = new DatabaseRule();
 
   @Test
   public void customer_instantiatesCorrectly_true() {
@@ -25,5 +30,58 @@ public class CustomerTest {
   public void getEmail_customerInstantiatesWithEmail_String() {
     Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
     assertEquals("jdoe@jdoe.com", testCustomer.getEmail());
+  }
+
+  @Test
+  public void equals_returnsTrueIfNameAddressAndEmailAreSame_true() {
+    Customer firstCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    Customer secondCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    assertTrue(firstCustomer.equals(secondCustomer));
+  }
+
+  @Test
+  public void save_insertsObjectIntoDatabase_Customer() {
+    Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    testCustomer.save();
+    assertTrue(Customer.all().get(0).equals(testCustomer));
+  }
+
+  @Test
+  public void all_returnsAllInstancesOfCustomer_true() {
+    Customer firstCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    firstCustomer.save();
+    Customer secondCustomer = new Customer("Jane Doe", "102 W Olympic Pl, Seattle", "janedoe@janedoe.com");
+    secondCustomer.save();
+    assertEquals(true, Customer.all().get(0).equals(firstCustomer));
+    assertEquals(true, Customer.all().get(1).equals(secondCustomer));
+  }
+
+  @Test
+  public void save_assignsIdToObject() {
+    Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    testCustomer.save();
+    Customer savedCustomer = Customer.all().get(0);
+    assertEquals(testCustomer.getId(), savedCustomer.getId());
+  }
+
+  @Test
+  public void find_returnsCustomerWithSameId_secondCustomer() {
+    Customer firstCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    firstCustomer.save();
+    Customer secondCustomer = new Customer("Jane Doe", "102 W Olympic Pl, Seattle", "janedoe@janedoe.com");
+    secondCustomer.save();
+    assertEquals(Customer.find(secondCustomer.getId()), secondCustomer);
+  }
+
+  @Test
+  public void getShoes_retrievesAllShoesFromDatabase_shoesList() {
+    Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
+    testCustomer.save();
+    Shoe firstShoe = new Shoe("Sneakers", testCustomer.getId(), 50, 6);
+    firstShoe.save();
+    Shoe secondShoe = new Shoe("Sandals", testCustomer.getId(), 30, 8);
+    secondShoe.save();
+    Shoe[] shoes = new Shoe[] { firstShoe, secondShoe };
+    assertTrue(testCustomer.getShoes().containsAll(Arrays.asList(shoes)));
   }
 }
