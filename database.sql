@@ -75,10 +75,11 @@ ALTER SEQUENCE customers_id_seq OWNED BY customers.id;
 CREATE TABLE shoes (
     id integer NOT NULL,
     name character varying,
-    customerid integer,
     price integer,
     size integer,
-    purchased timestamp without time zone
+    purchased boolean,
+    customerid integer,
+    timepurchased timestamp without time zone
 );
 
 
@@ -138,10 +139,10 @@ SELECT pg_catalog.setval('customers_id_seq', 1, false);
 -- Data for Name: shoes; Type: TABLE DATA; Schema: public; Owner: Guest
 --
 
-COPY shoes (id, name, customerid, price, size, purchased) FROM stdin;
-2	Another Name	1	50	7	2017-07-18 15:54:00.82056
-3	Another Name	1	50	7	\N
-1	Some Name	1	50	7	2017-07-18 16:36:25.498389
+COPY shoes (id, name, price, size, purchased, customerid, timepurchased) FROM stdin;
+2	Another Name	50	7	\N	\N	\N
+3	Another Name	50	7	\N	\N	\N
+1	Some Name	50	7	\N	\N	\N
 \.
 
 

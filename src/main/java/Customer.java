@@ -100,4 +100,15 @@ public class Customer {
       .executeUpdate();
     }
   }
+
+  public static Customer findByName(String name) {
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT * FROM customers where name=:name";
+      Customer customer = con.createQuery(sql)
+        .addParameter("name", name)
+        .executeAndFetchFirst(Customer.class);
+        return customer;
+    }
+  }
+
 }

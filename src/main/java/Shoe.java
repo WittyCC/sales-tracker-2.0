@@ -8,18 +8,22 @@ import java.text.DateFormat;
 
 public class Shoe {
   private String name;
-  private int customerId;
   private int price;
   private int size;
   private int id;
-  private Timestamp purchased;
+  private boolean purchased;
+  private Timestamp timePurchased;
+  private int customerId;
+  //private static int totalSales = 50;
 
-  public Shoe(String name, int customerId, int price, int size) {
+
+
+  public Shoe(String name, int price, int size) {
     this.name = name;
-    this.customerId = customerId;
     this.price = price;
     this.size = size;
-    // this.purchased = 0000-00-00 00-00-00;
+    this.purchased = false;
+    this.customerId = -1;
   }
 
   public String getName(){
@@ -27,7 +31,14 @@ public class Shoe {
   }
 
   public int getCustomerId(){
-    return customerId;
+
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT * FROM shoes WHERE customerId = :customerId";
+      Shoe shoe = con.createQuery(sql)
+      .addParameter("customerId", customerId)
+      .executeAndFetchFirst(Shoe.class);
+      return customerId;
+    }
   }
 
   public int getPrice(){
@@ -42,18 +53,50 @@ public class Shoe {
     return id;
   }
 
+  public boolean getPurchased() {
+    return purchased;
+  }
+
+  public static int getTotalSales() {
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT SUM (price) FROM shoes where purchased = true";
+      return (int) con.createQuery(sql)
+      .executeScalar(Integer.class);
+    }
+  }
+
+  public static Shoe find(int id) {
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT * FROM shoes where id=:id";
+      Shoe shoe = con.createQuery(sql)
+        .addParameter("id", id)
+        .executeAndFetchFirst(Shoe.class);
+        return shoe;
+    }
+  }
+
   public void setPurchased(){
     try(Connection con = DB.sql2o.open()) {
-      String sql = "UPDATE shoes SET purchased = now() WHERE id = :id";
+      String sql = "UPDATE shoes SET purchased = true WHERE id = :id";
       con.createQuery(sql)
         .addParameter("id", id)
         .executeUpdate();
     }
   }
 
-  public Timestamp getPurchased(){
-    return purchased;
+  public void setCustomerId(int customerid){
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "UPDATE shoes SET customerid = :customerid WHERE id = :id";
+      con.createQuery(sql)
+        .addParameter("id", id)
+        .addParameter("customerid", customerid)
+        .executeUpdate();
+    }
   }
+
+  // public Timestamp getPurchased(){
+  //   return purchased;
+  // }
 
   @Override
   public boolean equals(Object otherShoe){
@@ -62,7 +105,6 @@ public class Shoe {
     } else {
       Shoe newShoe = (Shoe) otherShoe;
       return this.getName().equals(newShoe.getName()) &&
-             this.getCustomerId() == newShoe.getCustomerId() &&
              this.getPrice() == newShoe.getPrice() &&
              this.getSize() == newShoe.getSize();
     }
@@ -70,13 +112,13 @@ public class Shoe {
 
   public void save() {
     try(Connection con = DB.sql2o.open()) {
-      String sql = "INSERT INTO shoes (name, customerid, price, size, purchased) VALUES (:name, :customerId, :price, :size, :purchased)";
+      String sql = "INSERT INTO shoes (name, price, size, purchased, customerid) VALUES (:name, :price, :size, :purchased, :customerid)";
       this.id = (int) con.createQuery(sql, true)
         .addParameter("name", this.name)
-        .addParameter("customerId", this.customerId)
         .addParameter("price", this.price)
         .addParameter("size", this.size)
-        .addParameter("purchased", this.purchased)
+        .addParameter("purchased", purchased)
+        .addParameter("customerid", customerId)
         .executeUpdate()
         .getKey();
     }
@@ -89,15 +131,14 @@ public class Shoe {
    }
  }
 
-  public static Shoe find(int id) {
-    try(Connection con = DB.sql2o.open()) {
-      String sql = "SELECT * FROM shoes where id=:id";
-      Shoe shoe = con.createQuery(sql)
-        .addParameter("id", id)
-        .executeAndFetchFirst(Shoe.class);
-        return shoe;
-    }
+ public static List<Shoe> allShoePurchased() {
+  String sql = "SELECT * FROM shoes WHERE purchased = true";
+  try(Connection con = DB.sql2o.open()) {
+    return con.createQuery(sql).executeAndFetch(Shoe.class);
   }
+}
+
+
 
   public static Shoe findByName(String name) {
     try(Connection con = DB.sql2o.open()) {
@@ -108,7 +149,7 @@ public class Shoe {
         return shoe;
     }
   }
-
+//add list
   public static Shoe findBySize(int size) {
     try(Connection con = DB.sql2o.open()) {
       String sql = "SELECT * FROM shoes where size=:size";
@@ -118,7 +159,7 @@ public class Shoe {
         return shoe;
     }
   }
-
+//add list
   public static Shoe findByPrice(int price) {
     try(Connection con = DB.sql2o.open()) {
       String sql = "SELECT * FROM shoes where price<=:price";
@@ -129,22 +170,22 @@ public class Shoe {
     }
   }
 
-  public static Shoe findByCustomerId(int customerId) {
-    try(Connection con = DB.sql2o.open()) {
-      String sql = "SELECT * FROM shoes where customerId=:customerId";
-      Shoe shoe = con.createQuery(sql)
-        .addParameter("customerId", customerId)
-        .executeAndFetchFirst(Shoe.class);
-        return shoe;
-    }
-  }
+  // public static Shoe findByCustomerId(int customerId) {
+  //   try(Connection con = DB.sql2o.open()) {
+  //     String sql = "SELECT * FROM shoes where customerId=:customerId";
+  //     Shoe shoe = con.createQuery(sql)
+  //       .addParameter("customerId", customerId)
+  //       .executeAndFetchFirst(Shoe.class);
+  //       return shoe;
+  //   }
+  // }
 
-  public static List<Shoe> findHistory() {
-    String sql = "SELECT * FROM shoes WHERE purchased IS NOT NULL;";
-    try(Connection con = DB.sql2o.open()) {
-      return con.createQuery(sql).executeAndFetch(Shoe.class);
-    }
-  }
+  // public static List<Shoe> findHistory() {
+  //   String sql = "SELECT * FROM shoes WHERE purchased IS NOT NULL;";
+  //   try(Connection con = DB.sql2o.open()) {
+  //     return con.createQuery(sql).executeAndFetch(Shoe.class);
+  //   }
+  // }
 
 
   public void update(String name, int price, int size) {
