@@ -1,9 +1,11 @@
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.sql2o.*;
-import java.util.*;
+//import java.util.*;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 public class ShoeTest {
 
@@ -15,12 +17,6 @@ public class ShoeTest {
     Shoe testShoe = new Shoe("Sneakers", 50, 6);
     assertEquals(true, testShoe instanceof Shoe);
   }
-
-  // @Test
-  // public void Shoe_instantiatesWithCustomerId_int() {
-  //   Shoe testShoe = new Shoe("Sneakers", 50, 6);
-  //   assertEquals(1, testShoe.getCustomerId());
-  // }
 
   @Test
   public void Shoe_instantiatesWithPrice_int() {
@@ -50,19 +46,23 @@ public class ShoeTest {
   }
 
   @Test
-  public void setPurchased_setCustomerId_true() {
+  public void setCustomerId_setCustomerId_true() {
     Customer testCustomer = new Customer("John Doe", "101 W Olympic Pl, Seattle", "jdoe@jdoe.com");
     testCustomer.save();
     Shoe testShoe = new Shoe("Sneakers", 50, 6);
     testShoe.save();
     testShoe.setCustomerId(testCustomer.getId());
-    System.out.println("testCustomer id: " + testCustomer.getId());
-    System.out.println("testshoe customerid: " + testShoe.getCustomerId());
-    System.out.println("testshoe id: " + testShoe.getId());
-    //testCustomer.getId());
-    // Shoe savedShoe = Shoe.find(testShoe.getId());
-    assertEquals(testShoe.getCustomerId(), -1);
+    assertEquals(testShoe.getCustomerId(), testCustomer.getId());
   }
+
+  // @Test
+  // public void findByCustomerId_returnsShoesWithSameCustomerId_secondShoe() {
+  //   Shoe firstShoe = new Shoe("Sneakers", 50, 6);
+  //   firstShoe.save();
+  //   Shoe secondShoe = new Shoe("Sandals", 30, 8);
+  //   secondShoe.save();
+  //   assertEquals(Shoe.findByCustomerId(secondShoe.getCustomerId()), secondShoe);
+  // }
 
   @Test
   public void equals_returnsTrueIfNameAndPriceandSizeAreSame_true() {
@@ -136,25 +136,6 @@ public class ShoeTest {
     assertEquals(Shoe.findBySize(secondShoe.getSize()), secondShoe);
   }
 
-  // @Test
-  // public void findByCustomerId_returnsShoesWithSameCustomerId_secondShoe() {
-  //   Shoe firstShoe = new Shoe("Sneakers", 50, 6);
-  //   firstShoe.save();
-  //   Shoe secondShoe = new Shoe("Sandals", 30, 8);
-  //   secondShoe.save();
-  //   assertEquals(Shoe.findByCustomerId(secondShoe.getCustomerId()), secondShoe);
-  // }
-
-  // @Test
-  // public void save_savesCustomerIdIntoDB_true() {
-  //   Customer testCustomer = new Customer("Jane Doe", "101 W Olympic Pl, Seattle", "janedoe@janedoe.com");
-  //   testCustomer.save();
-  //   Shoe testShoe = new Shoe("Sneakers", testCustomer.getId(), 50, 6);
-  //   testShoe.save();
-  //   Shoe savedShoe = Shoe.find(testShoe.getId());
-  //   assertEquals(savedShoe.getCustomerId(), testCustomer.getId());
-  // }
-
   @Test
  public void update_updatesShoeDetails_true() {
    Shoe testShoe = new Shoe("Sneakers", 50, 6);
@@ -194,12 +175,23 @@ public class ShoeTest {
    assertEquals(80, Shoe.getTotalSales());
  }
 
- // @Test
- //  public void purchased_recordsTimePurchasedInDatabase() {
- //    Shoe testShoe = new Shoe("Sneakers", 1, 50, 6);
+ @Test
+ public void setTimePurchased_recordsTimePurchasedInDatabase() {
+   Shoe testShoe = new Shoe("Sneakers", 50, 6);
+   testShoe.save();
+   testShoe.setTimePurchased();
+   Timestamp savedTimePurchased = Shoe.find(testShoe.getId()).getTimePurchased();
+   Timestamp rightNow = new Timestamp(new Date().getTime());
+   assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedTimePurchased));
+ }
+
+ // @Test//same test as the top one - it passes/don't delete!!!
+ //  public void setTimePurchased_recordsTimePurchasedInDatabase() {
+ //    Shoe testShoe = new Shoe("Sneakers", 50, 6);
  //    testShoe.save();
- //    testShoe.setPurchased();
- //    Timestamp savedShoePurchased = testShoe.getPurchased();
+ //    testShoe.setTimePurchased();
+ //    Timestamp savedShoePurchased = testShoe.getTimePurchased();
+ //
  //    Timestamp rightNow = new Timestamp(new Date().getTime());
  //    System.out.println("purchased shoe time:" + savedShoePurchased);
  //    System.out.println("time:" + rightNow);
@@ -208,12 +200,6 @@ public class ShoeTest {
  //    assertEquals(currentDate, shoeDate);
  //  }
 
-  // @Test
-  // public void save_recordsTimeOfPurchaseInDatabase() {
-  //   Shoe testShoe = new Shoe("Sneakers", 1, 50, 6);
-  //   testShoe.save();
-  //   assertEquals(null, testShoe.getPurchased());
-  // }
 
   // @Test
   // public void findHistory_returnsShoes_secondShoe() {
